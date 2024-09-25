@@ -1,7 +1,5 @@
 import itertools
-
-wordlist = []
-variation_list = []
+import time
 
 password_variations = {
     'a': ['a', 'A', '@', '4', '^'],
@@ -32,33 +30,42 @@ password_variations = {
     'z': ['z', 'Z', '2'],
 }
 
-
 def enter_word():
+    file_name = ''
+    wordlist = []
 
     while True:
 
         input_word = input('Enter a word or next step ')
         if input_word == 'next step':
+            file_name = input('Name for output file: ')
             break
         else:
             wordlist.append(input_word.lower())
 
-def create_password():
-    for word in wordlist:
-        print(word)
+    return wordlist, file_name
 
-        variations = [password_variations[letter] if letter in password_variations else [letter] for letter in word]
+def create_password(wordlist, file_name):
+    count_word = 0
 
-        for combination in itertools.product(*variations):
-            new_word = ''.join(combination)
-            variation_list.append(new_word)
+    with open(f"{file_name}.txt", "w") as file:
 
-def output_wordlist():
-    file_name = input('name for wordlist file ')
-    file = open(f"{file_name}.txt", "a")
-    for item in variation_list:
-        file.write(item+', ')
-    file.close()
+        for word in wordlist:
+            variations = [password_variations[letter] if letter in password_variations else [letter] for letter in word]
+            for combination in itertools.product(*variations):
+                new_word = ''.join(combination)
+                file.write(new_word + '\n')
+                count_word += 1
+    return count_word
+
+
+
+# def output_wordlist():
+#     file_name = input('name for wordlist file ')
+#     file = open(f"{file_name}.txt", "a")
+#     for item in variation_list:
+#         file.write(item+', ')
+#     file.close()
 
 
 
@@ -75,9 +82,9 @@ def output_wordlist():
 
 
 if __name__ == '__main__':
-    enter_word()
-    create_password()
-    output_wordlist()
-    print(wordlist, len(variation_list))
-
-
+    start = time.time()
+    wordlist, file_name = enter_word()
+    total_words = create_password(wordlist, file_name)
+    end = time.time()
+    print(end - start)
+    print(total_words)
