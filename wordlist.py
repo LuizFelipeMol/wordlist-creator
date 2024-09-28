@@ -1,6 +1,7 @@
 import itertools
 import time
 
+
 password_variations = {
     'a': ['a', 'A', '@', '4', '^'],
     'b': ['b', 'B', '8', '|3'],
@@ -45,7 +46,17 @@ def enter_word():
 
     return wordlist, file_name
 
-def create_password(wordlist, file_name):
+
+def get_file_size():
+    try:
+        maximum_file_size = float(input("Input maximum file size in gb "))
+        maximum_file_size_bytes = maximum_file_size * 1000000000
+        return maximum_file_size_bytes
+    except ValueError:
+        print('Enter a valid number')
+
+
+def create_password(wordlist, file_name, maximum_file_size_bytes):
     count_word = 0
 
     with open(f"{file_name}.txt", "w") as file:
@@ -54,37 +65,26 @@ def create_password(wordlist, file_name):
             variations = [password_variations[letter] if letter in password_variations else [letter] for letter in word]
             for combination in itertools.product(*variations):
                 new_word = ''.join(combination)
+
+                file_size = file.tell()
+
+                if file_size >= maximum_file_size_bytes:
+                    print('reached the maximum file size')
+                    return count_word
+
                 file.write(new_word + '\n')
                 count_word += 1
-    return count_word
 
-
-
-# def output_wordlist():
-#     file_name = input('name for wordlist file ')
-#     file = open(f"{file_name}.txt", "a")
-#     for item in variation_list:
-#         file.write(item+', ')
-#     file.close()
-
-
-
-
-        # for letter in word:
-        #     print(letter)
-        #
-        #     if letter in password_variations:
-        #         for variation in password_variations[letter]:
-        #             new_word = word.replace(letter, variation)
-        #             variation_list.append(new_word)
-        #             print(wordlist, variation_list)
-
+    return count_word, file_size
 
 
 if __name__ == '__main__':
     start = time.time()
     wordlist, file_name = enter_word()
-    total_words = create_password(wordlist, file_name)
+    maximum_file_size_bytes = get_file_size()
+    total_words, file_size = create_password(wordlist, file_name, maximum_file_size_bytes)
     end = time.time()
-    print(end - start)
-    print(total_words)
+    print(f"time elapsed in seconds: {end - start}")
+    print(f"number of words: {total_words}")
+    print(f"file size: {file_size} bytes")
+
